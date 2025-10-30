@@ -1,8 +1,8 @@
 # Artificial Intelligence - Report
 
-**Name:** [First_name Last_name]
+**Name:** Abobaker Rahman
 
-**Student number:** [s01234..]
+**Student number:** s0222825
 
 
 
