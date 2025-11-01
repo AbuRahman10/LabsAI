@@ -165,6 +165,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     while not queue.isEmpty():
         state, actions = queue.pop()
         if problem.isGoalState(state):
+            print(queue.heap)
             return actions
         if state not in visited:
             visited.add(state)
