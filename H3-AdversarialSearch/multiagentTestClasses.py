@@ -22,7 +22,7 @@
 #
 import testClasses
 import json
-
+from ghostAgents import RandomGhost
 from collections import defaultdict
 from pprint import PrettyPrinter
 pp = PrettyPrinter()

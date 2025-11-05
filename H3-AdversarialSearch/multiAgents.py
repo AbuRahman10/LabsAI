@@ -12,10 +12,13 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-import random, util
-
+import random
+import util
+from util import manhattanDistance
+import math
 from game import Agent
 from pacman import GameState
+
 
 class ReflexAgent(Agent):
     """
@@ -41,11 +44,12 @@ class ReflexAgent(Agent):
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
+        if 447 >= gameState.getScore() >= 440:
+            print("Scores")
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
         "Add more of your code here if you want to"
 
         return legalMoves[chosenIndex]
@@ -68,12 +72,19 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # todo: ignore pacman stuck issue for now
+        ghostPositions = [state.getPosition() for state in newGhostStates]
+        nearestGhost = min(manhattanDistance(newPos, ghost) for ghost in ghostPositions)
+        deathPenalty = -math.inf if nearestGhost == 0 else 0
+        currentFoodGrid = currentGameState.getFood()
+        foods = currentFoodGrid.asList()
+        nearestFood = min(manhattanDistance(newPos, food_pos) for food_pos in foods) if foods else 0
+        score = (successorGameState.getScore() + deathPenalty - nearestFood)
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
