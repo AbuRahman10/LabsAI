@@ -44,12 +44,11 @@ class ReflexAgent(Agent):
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
-        if 447 >= gameState.getScore() >= 440:
-            print("Scores")
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
+
         "Add more of your code here if you want to"
 
         return legalMoves[chosenIndex]
@@ -145,7 +144,42 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        v, bestAction = self.value(gameState, agentIndex=0, remainingDepth=self.depth)
+        return bestAction
+
+    def min_value(self, state, agentIndex, remainingDepth) -> ...:
+        assert agentIndex > 0
+        if agentIndex == state.getNumAgents() - 1:
+            remainingDepth -= 1
+        v = +math.inf
+        bestAction = None
+        for action in state.getLegalActions(agentIndex):
+            successor = state.generateSuccessor(agentIndex, action)
+            successorValue, _ = self.value(successor, (agentIndex + 1) % state.getNumAgents(), remainingDepth)
+            if successorValue < v:
+                v = successorValue
+                bestAction = action
+        return v, bestAction
+
+    def max_value(self, state, agentIndex, remainingDepth) -> ...:
+        assert agentIndex == 0
+        v = -math.inf
+        bestAction = None
+        for action in state.getLegalActions(agentIndex):
+            successor = state.generateSuccessor(agentIndex, action)
+            successorValue, _ = self.value(successor, (agentIndex + 1) % state.getNumAgents(), remainingDepth)
+            if successorValue > v:
+                v = successorValue
+                bestAction = action
+        return v, bestAction
+
+    def value(self, state, agentIndex, remainingDepth) -> ...:
+        if state.isWin() or state.isLose() or remainingDepth == 0:
+            return self.evaluationFunction(state), None
+        elif agentIndex == 0:
+            return self.max_value(state, agentIndex, remainingDepth)
+        else:
+            return self.min_value(state, agentIndex, remainingDepth)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

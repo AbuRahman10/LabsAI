@@ -30,6 +30,7 @@ pp = PrettyPrinter()
 from game import Agent
 from pacman import GameState
 from ghostAgents import DirectionalGhost
+from ghostAgents import RandomGhost
 import random
 import layout
 import pacman
