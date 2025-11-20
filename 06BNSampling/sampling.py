@@ -48,7 +48,24 @@ def rejection_sampling(bn: DiscreteBN, query, evidence, N, rng):
     """
     """TODO: implement this function"""
 
-    raise NotImplementedError
+    qvar, qval = query
+    kept = 0
+    match = 0
+    for _ in range(N):
+        s = prior_sample(bn, rng)
+        consistent = True
+        for ev_k, ev_v in evidence.items():
+            if s.get(ev_k) != ev_v:
+                consistent = False
+                break
+        if not consistent:
+            continue
+        kept += 1
+        if s.get(qvar) == qval:
+            match += 1
+    if kept == 0:
+        return 0.0
+    return match / kept
 
 
 def likelihood_weighting(bn: DiscreteBN, query, evidence, N, rng):
@@ -61,7 +78,6 @@ def likelihood_weighting(bn: DiscreteBN, query, evidence, N, rng):
       estimate the conditional probability, making sure to normalize
       at the end.
 
-
     Parameters:
         bn (DiscreteBN): The Bayesian network object.
         query (tuple):  (variable_name, value) to estimate, e.g. ("either", "yes").
@@ -73,6 +89,31 @@ def likelihood_weighting(bn: DiscreteBN, query, evidence, N, rng):
         float: An estimate of P(query | evidence)
                (Normalized weighted probability for the query variable being its target value.)
     """
+
     """TODO: implement this function"""
 
-    raise NotImplementedError
+    qvar, qval = query
+    weight_true = 0.0
+    for _ in range(N):
+        w = 1.0
+        sample = {}
+        for X in bn.topo_order:
+            states = bn.states[X]
+            if X in evidence:
+                ev_val = evidence[X]
+                p = bn.local_prob(X, ev_val, sample)
+                w *= p
+                sample[X] = ev_val
+            else:
+                probs = [bn.local_prob(X, s, sample) for s in states]
+                r = rng.random()
+                cum = 0.0
+                chosen = states[-1]
+                for s_val, p in zip(states, probs):
+                    cum += p
+                    if r <= cum:
+                        chosen = s_val
+                        break
+                sample[X] = chosen
+        if sample.get(qvar) == qval:
+            weight_true += w
