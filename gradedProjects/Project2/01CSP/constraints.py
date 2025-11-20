@@ -29,6 +29,37 @@ def add_constraints(model: "cp_model.CpModel", X, parsed):
     horiz  = parsed["horiz"]
     vert   = parsed["vert"]
 
-    # TODO: add the constrained on the model
+    # 1) Row AllDifferent
+    for r in range(N):
+        # X[r] is a list of IntVar for that row
+        model.AddAllDifferent(X[r])
 
-    pass
+    # 1b) Column AllDifferent
+    for c in range(N):
+        col_vars = [X[r][c] for r in range(N)]
+        model.AddAllDifferent(col_vars)
+
+    # 2) Givens (prefilled digits)
+    for r in range(N):
+        for c in range(N):
+            val = givens[r][c]
+            if val is not None:
+                model.Add(X[r][c] == int(val))
+    # 3) Inequalities
+    # Horizontal
+    for (r, c), sym in horiz.items():
+        if sym == "<":
+            model.Add(X[r][c] < X[r][c+1])
+        elif sym == ">":
+            model.Add(X[r][c] > X[r][c+1])
+        else:
+            pass
+    # Vertical
+    for (r, c), sym in vert.items():
+        if sym == "^":
+            model.Add(X[r][c] < X[r+1][c])
+        elif sym == "v":
+            model.Add(X[r][c] > X[r+1][c])
+        else:
+            pass
+    return
